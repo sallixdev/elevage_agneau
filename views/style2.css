@@ -1,0 +1,298 @@
+@font-face {
+ font-family: "Satisfy";
+ src: url("fonts/Satisfy-Regular.ttf") format("truetype");
+        
+}
+
+/* CSS Document */
+body {
+  	margin: 0; 
+	padding: 0;
+	height: 100%;
+	background-color: rgba(49,79,79,0.75) ;
+
+}
+
+/* début du menu  */
+
+.sidenav {
+	background-color: darkslategray; 
+	padding: 1px; 
+	color: honeydew; 
+}
+#closeBtn{
+	 visibility: hidden;
+}
+#menu {
+	display: flex; 
+	justify-content: space-around; 
+	font-size: 1.7em; 
+	list-style-type: none;
+}
+
+#menu li a {
+	text-decoration: none;
+	color: honeydew;
+}
+nav ul li ul {
+    display: none;
+}
+.sous li {
+    padding-top: 15px;
+}
+nav ul li:hover .sous{
+	z-index: 99999;
+    display: list-item;
+    list-style-type: none;
+    position: absolute;
+    background-color: rgb(30, 70, 70, 0.8);
+    padding: 5px;
+
+}
+nav ul li:hover ul li {
+    float: none;
+} 
+.deconect{
+	font-size: 0.5em; 
+	position:absolute; 
+	top: 3px; 
+	right: 15px;
+}
+/* fin du menu  */
+#sectionIndex{
+	margin: 0;
+	padding: 0;
+}
+
+#imgIndex {
+	height: 600px;
+	background-image: url("../img/sheeps-ga0b58e5cc_1280.jpg");
+	background-size: cover;
+	background-position: 0px 100px ;
+	background-repeat: no-repeat;
+
+	
+}
+#imgIndex div{
+	padding: 2% 2%;
+}
+#imgIndex div h1 {
+	margin: 0;
+	-webkit-text-stroke: 0.1px green;
+	Font-family:  Satisfy, Géorgie, serif;
+	color: darkslategray;
+	width: 250px;
+	padding: 2% 2%;
+	font-size: 3em;
+	font-weight: 500;
+	border: 3px solid black; 
+	box-shadow: 1px 1px 5px 5px white;
+	background-color: rgb(202, 214, 186,0.3); 
+	
+}
+#sectionIndex div h2{
+	Font-family:  Satisfy, Géorgie, serif;
+	-webkit-text-stroke: 0.05px gainsboro;
+	font-weight: 500;
+	font-size: 2em;
+}
+
+#sectionIndex div p{
+	Font-family:  Satisfy, Géorgie, serif;
+	
+	font-weight: 500;
+	font-size: 1.4em;
+}
+
+/* concordance pages  */
+section {
+
+}
+
+/* fin concordance pages  */
+
+
+.formGeneral{
+	padding: 20px 0px;
+	font-family: Consolas, monaco, monospace;
+	font-weight: bold;
+	
+}
+.formGeneral div {
+	text-align: center;
+	
+}
+
+.sectionArticles{
+	display: flex;
+	flex-wrap: wrap;
+	justify-content:center;
+
+}
+.articles {
+	border-radius: 20px;
+	margin: 20px 50px;
+	font-family: Consolas, monaco, monospace;
+	background-color: rgb(255, 255, 255,0.5);
+	height: 20%px; width: 220px; 
+	border: 3px solid black; 
+	text-align: center;
+	box-shadow: 7px 3px 0px 0px rgb(47, 79, 79,0.90); 
+}
+#sectionEspace{
+	height: 90vh;
+	background-image: url("../img/champs.jpg");
+	background-size: cover;
+	background-position: center;
+}
+#articleEspace{
+	display: flex;
+	justify-content: space-around;
+
+}
+.divEspace{
+	margin-top: 20px;
+	padding: 10px;
+	background-color: rgb(202, 214, 186,0.3); 
+	border: 3px solid darkslategray;
+	text-decoration: none;
+	color: black;  
+}
+#animaux{
+	background-image: url(../img/paturage.jpg);
+	background-position: center;
+	background-size: cover;
+	height: 90vh;
+	margin: none;
+
+}
+#animaux h2{
+	margin-block-start: 0;
+}
+
+#batiment{
+	background-image: url(../img/ferme.jpg);
+	background-position: center;
+	background-size: cover;
+	height: 90vh;
+	margin: none;
+
+}
+
+#batiment h2{
+	margin-block-start: 0;
+}
+#garage{
+	background-image: url(../img/garage.jpg);
+	background-position: center;
+	background-size: cover;
+	height: 90vh;
+	margin: none;
+
+}
+
+#garage h2{
+	margin-block-start: 0;
+}
+
+
+#imgIndex2{
+	display: flex;
+	flex-wrap: wrap;
+	justify-content:space-around;
+}
+#imgIndex2 img{
+	width: 40%;
+	min-width: 400px;
+	margin: 20px;
+	border-radius: 20px;
+	box-shadow: 10px 5px;
+}
+
+
+
+@media screen and (max-width: 1100px){
+
+#imgIndex {
+	background-position: 0px 0px ;
+	
+}
+
+
+/* Sidenav menu */
+.sidenav {
+  height: 60%;
+  width: 250px;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: -250px;
+  background-color: darkslategray;
+  padding-top: 60px;
+  transition: left 0.5s ease;	
+  
+}
+#closeBtn{
+	visibility: visible;
+}
+.deconect{
+	
+	top: 450px; 
+	font-size: 0.5em; 
+	right: 15px;
+}
+#menu {
+	display: block;
+	list-style-type: none;
+  padding: 0;
+  margin: 0;
+
+}
+
+/* Sidenav menu links */
+.sidenav a {
+  
+  padding: 8px 8px 8px 32px;
+  text-decoration: none;
+  color: #818181;
+  display: block;
+  transition: 0.3s;
+}
+
+.sidenav a:hover {
+  color: #111;
+}
+
+/* Active class */
+.sidenav.active {
+  left: 0px;
+}
+
+/* Close btn */
+.sidenav .close {
+  position: absolute;
+  top: 0;
+  right: 25px;
+  
+}
+.burger-icon span {
+  display: block;
+  width: 35px;
+  height: 5px;
+  background-color: black;
+  margin: 6px 0;
+
+}
+nav ul li:hover .sous{
+	position: absolute;
+	width: 200px;
+	left: 100px;
+	font-size: 0.7em;
+
+}
+.sous li{
+	padding: 0px;
+	margin: 0;
+}
+
+}
