@@ -1,6 +1,8 @@
 
 <?php
-$bdd = new PDO('mysql:host=localhost;dbname=espace_admin;','root','');
+$bdd = new PDO('mysql:host=127.0.0.1:3306;dbname=u164330380_espaceAdmin;','u164330380_gererelevage','Sallix33620.');
+
+
 if(isset($_GET['id']) AND !empty($_GET['id'])){
 	$getid = $_GET['id'];
 	$recupArticle = $bdd->prepare('SELECT * FROM articles WHERE id=?');
@@ -36,6 +38,16 @@ if(isset($_GET['id']) AND !empty($_GET['id'])){
 <meta charset="utf-8">
 	<link href="style2.css" rel="stylesheet" type="text/css">
 <title>Modifier un article</title>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L17QZRH9VP"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L17QZRH9VP');
+</script>
+<link rel="icon" type="image/png" sizes="16x16" href="https://gererelevage.com/img/mon_logo.svg">
 </head>
 
 <body>

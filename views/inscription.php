@@ -1,6 +1,7 @@
 <?php 
 session_start();
-$bdd = new PDO('mysql:host=localhost;dbname=espace_admin;','root','');
+$bdd = new PDO('mysql:host=127.0.0.1:3306;dbname=u164330380_espaceAdmin;','u164330380_gererelevage','Sallix33620.');
+
 if(isset($_POST['envoi'])){
 	if(!empty($_POST['pseudo']) AND !empty($_POST['mdp']) AND !empty($_POST['email'])){
 
@@ -8,20 +9,32 @@ if(isset($_POST['envoi'])){
 		$pseudo = htmlspecialchars($_POST['pseudo']) ;
 		$mdp = sha1($_POST['mdp']);
 		$email = htmlspecialchars($_POST['email']);
-		$insertUser = $bdd->prepare('INSERT INTO membres(pseudo, mdp, email) VALUES(?,?,?)');
-		$insertUser->execute(array($pseudo,$mdp,$email));
-		
-		$recupUser = $bdd->prepare('SELECT * FROM membres WHERE pseudo = ? AND mdp = ? AND email = ?');
-		$recupUser->execute(array($pseudo,$mdp,$email));
-		if($recupUser->rowCount() > 0){
-		
-		$_SESSION['pseudo'] = $pseudo;
-		$_SESSION['mdp'] = $mdp;
-		$_SESSION['email'] = $email;
-		$_SESSION['id'] = $recupUser->fetch()['id'];
-		
-			header('Location: votre_espace.php');
+
+		$chekUser =  $bdd->prepare('SELECT pseudo FROM membres WHERE pseudo = ? ');
+		$chekUser->execute(array($pseudo));
+
+		if ($chekUser->rowCount() == 0) {
+					$insertUser = $bdd->prepare('INSERT INTO membres(pseudo, mdp, email) VALUES(?,?,?)');
+				$insertUser->execute(array($pseudo,$mdp,$email));
+
+				$recupUser = $bdd->prepare('SELECT * FROM membres WHERE pseudo = ? AND mdp = ? AND email = ?');
+				$recupUser->execute(array($pseudo,$mdp,$email));
+
+
+				if($recupUser->rowCount() > 0){
+				
+				$_SESSION['pseudo'] = $pseudo;
+				$_SESSION['mdp'] = $mdp;
+				$_SESSION['email'] = $email;
+				$_SESSION['id'] = $recupUser->fetch()['id'];
+				
+					header('Location: votre_espace.php');
+				}
+		}else{
+			echo "Ce pseudo est déjà pris veuillez en choisir un autre...";
 		}
+
+		
 	}else{
 		echo "Veuillez compléter tous les champs...";
 	}
@@ -38,6 +51,16 @@ if(isset($_POST['envoi'])){
 <meta charset="utf-8">
 	<link href="style2.css" rel="stylesheet" type="text/css">
 <title>Inscription</title>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L17QZRH9VP"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-L17QZRH9VP');
+</script>
+<link rel="icon" type="image/png" sizes="16x16" href="https://gererelevage.com/img/mon_logo.svg">
 </head>
 	
 	<?php require('menu.php'); ?>
