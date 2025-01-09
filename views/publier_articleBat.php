@@ -1,6 +1,6 @@
 <?php
 	session_start();
-$bdd = new PDO('mysql:host=127.0.0.1:3306;dbname=u164330380_espaceAdmin;','u164330380_gererelevage','Sallix33620.');
+$bdd = new PDO('mysql:host=127.0.0.1:3306;dbname=elevage;','root','');
 
 	if(!$_SESSION['mdp']){
 		header('Location: connexion.php');
