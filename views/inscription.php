@@ -1,86 +1,58 @@
-<?php 
-session_start();
-$bdd = new PDO('mysql:host=127.0.0.1:3306;dbname=elevage;','root','');
+<?php
 
-if(isset($_POST['envoi'])){
-	if(!empty($_POST['pseudo']) AND !empty($_POST['mdp']) AND !empty($_POST['email'])){
+require('database/db_connect.php');
 
-		
-		$pseudo = htmlspecialchars($_POST['pseudo']) ;
-		$mdp = sha1($_POST['mdp']);
-		$email = htmlspecialchars($_POST['email']);
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $prenom = htmlspecialchars($_POST['prenom']);
+    $nom = htmlspecialchars($_POST['nom']);
+    $pseudo = htmlspecialchars($_POST['pseudo']);
+    $email = htmlspecialchars($_POST['email']);
+    $mdp = password_hash($_POST['mdp'], PASSWORD_BCRYPT); // Hash sécurisé
 
-		$chekUser =  $bdd->prepare('SELECT pseudo FROM membres WHERE pseudo = ? ');
-		$chekUser->execute(array($pseudo));
+    // Validation des champs
+    if (!empty($prenom) && !empty($nom) && !empty($pseudo) && !empty($email) && !empty($_POST['mdp'])) {
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $stmt = $bdd->prepare('SELECT id FROM membres WHERE email = ?');
+            $stmt->execute([$email]);
 
-		if ($chekUser->rowCount() == 0) {
-					$insertUser = $bdd->prepare('INSERT INTO membres(pseudo, mdp, email) VALUES(?,?,?)');
-				$insertUser->execute(array($pseudo,$mdp,$email));
+            if ($stmt->rowCount() === 0) {
+                $insert = $bdd->prepare('INSERT INTO membres (prenom, nom, pseudo, email, mdp) VALUES (?, ?, ?, ?, ?)');
+                $insert->execute([$prenom, $nom, $pseudo, $email, $mdp]);
 
-				$recupUser = $bdd->prepare('SELECT * FROM membres WHERE pseudo = ? AND mdp = ? AND email = ?');
-				$recupUser->execute(array($pseudo,$mdp,$email));
-
-
-				if($recupUser->rowCount() > 0){
-				
-				$_SESSION['pseudo'] = $pseudo;
-				$_SESSION['mdp'] = $mdp;
-				$_SESSION['email'] = $email;
-				$_SESSION['id'] = $recupUser->fetch()['id'];
-				
-					header('Location: votre_espace.php');
-				}
-		}else{
-			echo "Ce pseudo est déjà pris veuillez en choisir un autre...";
-		}
-
-		
-	}else{
-		echo "Veuillez compléter tous les champs...";
-	}
+                $_SESSION['success'] = 'Inscription réussie. Vous pouvez maintenant vous connecter.';
+                header('Location: connexion.php');
+                exit();
+            } else {
+                $error = 'Cette adresse email est déjà utilisée.';
+            }
+        } else {
+            $error = 'Adresse email invalide.';
+        }
+    } else {
+        $error = 'Tous les champs doivent être remplis.';
+    }
 }
-
-
 ?>
-
-
-
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="fr">
 <head>
-<meta charset="utf-8">
-	<link href="style2.css" rel="stylesheet" type="text/css">
-<title>Inscription</title>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-L17QZRH9VP"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-L17QZRH9VP');
-</script>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style2.css">
+    <title>Inscription</title>
 </head>
-	
-	<?php require('menu.php'); ?>
-
+<?php require('menu.php'); ?>
 <body>
-	
-	<h2 align="center" >Veuillez remplir le formulaire.</h2>
-	<div class="formGeneral">
-		<div>
-			<form method="post" action="" align="center">
-
-				Votre pseudo :<br><input type="text" name="pseudo">
-				<br/><br/>
-				Votre mot de passe :<br><input type="password" name="mdp">
-				<br/><br/>
-				Votre E-mail :<br><input type="email" name="email">
-				<br/><br/>
-				<input type="submit" name="envoi">
-			</form>
-		</div>
-	</div>
-	<script src="../js/index.js?version=1.0.4"></script>
+    <h1>Inscription</h1>
+    <?php if (isset($error)): ?>
+        <p style="color: red;"><?= $error ?></p>
+    <?php endif; ?>
+    <form method="POST" action="">
+        <input type="text" name="prenom" placeholder="Prénom" required>
+        <input type="text" name="nom" placeholder="Nom" required>
+        <input type="text" name="pseudo" placeholder="Nom de l'élevage" required>
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="mdp" placeholder="Mot de passe" required>
+        <button type="submit">S'inscrire</button>
+    </form>
 </body>
 </html>

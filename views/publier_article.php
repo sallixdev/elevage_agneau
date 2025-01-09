@@ -1,111 +1,130 @@
+
+<?php require('menu2.php'); ?>
+
 <?php
-	session_start();
-$bdd = new PDO('mysql:host=127.0.0.1:3306;dbname=elevage;','root','');
 
+require('database/db_connect.php'); // Connexion à la base
 
-	if(!$_SESSION['mdp']){
-		header('Location: connexion.php');
-	}
-
-if(isset($_POST['envoi'])){
-	if(!empty($_POST['titre']) and !empty($_POST['description'])){
-		
-		
-		$image = $_FILES['image'];
-		
-		$imageName = $_FILES['image']['name'];
-		$imageTmpName = $_FILES['image']['tmp_name'];
-		$imageSize = $_FILES['image']['size'];
-		$imageError = $_FILES['image']['error'];
-		$imageType = $_FILES['image']['type'];
-		
-		$imageExt = explode('.',$imageName);
-		$imageActualExt = strtolower(end($imageExt));
-		
-		$allowed = array('jpg','jpeg','png');
-		
-		if(in_array($imageActualExt,$allowed)){
-			if($imageError === 0){
-				if($imageSize < 3000000){
-					$ImageNameNew = uniqid('', true).".".$imageActualExt;
-					$imageDestination = 'picture/'.$ImageNameNew;
-					$titre = htmlspecialchars($_POST['titre']);
-					
-					$dateN = date('Y-m-d', strtotime($_POST['dateNaissance']));
-					
-					$dateT =date('Y-m-d', strtotime($_POST['dateTraitement']));
-
-					$description = nl2br(htmlspecialchars($_POST['description']));
-					
-					
-					move_uploaded_file($imageTmpName, $imageDestination);
-					$insererArticle = $bdd->prepare('INSERT INTO articles(titre, description,image,id_user,dateNaissance,dateTraitement) VALUES(?,?,?,?,?,?)');
-		$insererArticle->execute(array($titre,$description,$ImageNameNew,$_SESSION['id'],$dateN,$dateT));
-					header("location: articles.php?uploadsuccess");
-					
-					
-				}else {
-					echo("Votre fichier est trop volumineux...");
-				}
-			} else{
-				echo("Il y a eu une erreur lors du téléchargement du fichier...");
-			}
-		} else {
-			echo("Ce fichier n'est pas une image...");
-		}
-	}else{
-		echo("veuillez compléter tous les champs...");
-	}
+// Vérification de la session
+if (!isset($_SESSION['id'])) {
+    header('Location: connexion.php');
+    exit();
 }
 
+// Détection du type d'article
+$type = isset($_GET['type']) ? $_GET['type'] : 'general';
+
+switch ($type) {
+    case 'bat':
+        $table = 'articlesbat';
+        $title = 'Publier un bâtiment';
+        $extraFields = []; // Pas de champs supplémentaires spécifiques
+        break;
+    case 'equip':
+        $table = 'articlesequip';
+        $title = 'Publier un équipement';
+        $extraFields = ['date_achat', 'date_derniere_rep'];
+        break;
+    default:
+        $table = 'articles';
+        $title = 'Publier un animal';
+        $extraFields = ['dateNaissance', 'dateTraitement'];
+        break;
+}
+
+// Gestion de la publication
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $titre = htmlspecialchars($_POST['titre']);
+    $description = nl2br(htmlspecialchars($_POST['description']));
+    $id_user = $_SESSION['id'];
+    $extraValues = [];
+
+    // Gestion des champs supplémentaires (dates)
+    foreach ($extraFields as $field) {
+        $extraValues[$field] = !empty($_POST[$field]) ? $_POST[$field] : null;
+    }
+
+    // Gestion de l'image
+    $image = null;
+    if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
+        $allowedExtensions = ['jpg', 'jpeg', 'png'];
+        $fileInfo = pathinfo($_FILES['image']['name']);
+        $fileExtension = strtolower($fileInfo['extension']);
+
+        if (in_array($fileExtension, $allowedExtensions)) {
+            $image = uniqid() . '.' . $fileExtension;
+            move_uploaded_file($_FILES['image']['tmp_name'], "picture/$image");
+        } else {
+            $error = 'Format d\'image non supporté.';
+        }
+    }
+
+    if (!isset($error)) {
+        // Préparation des champs pour la requête SQL
+        $columns = 'titre, description, id_user';
+        $placeholders = '?, ?, ?';
+        $values = [$titre, $description, $id_user];
+
+        if ($image) {
+            $columns .= ', image';
+            $placeholders .= ', ?';
+            $values[] = $image;
+        }
+
+        foreach ($extraFields as $field) {
+            $columns .= ", $field";
+            $placeholders .= ', ?';
+            $values[] = $extraValues[$field];
+        }
+
+        // Insertion dans la base
+        $stmt = $bdd->prepare("INSERT INTO $table ($columns) VALUES ($placeholders)");
+        $stmt->execute($values);
+
+        $successMessage = "Article publié avec succès.";
+    }
+}
 ?>
 
-
-
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="fr">
 <head>
-<meta charset="utf-8">
-	<link href="style2.css" rel="stylesheet" type="text/css">
-<title>Publier un article</title>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-L17QZRH9VP"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-L17QZRH9VP');
-</script>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style2.css">
+    <title><?= htmlspecialchars($title) ?></title>
 </head>
-<?php require('menu2.php'); ?>
-	
 <body>
-	<section>
-		<div class="formGeneral">
-			
-			<div>
-				<form method="POST" action="" align="center" enctype="multipart/form-data" >
-
-					Titre <div></div><input type="text" name="titre">
-					<br><br>
-					Date de naissance<div></div><input type="date" name="dateNaissance">
-					<br><br>
-					Date dernier traitement<div></div><input type="date" name="dateTraitement">
-					<br><br>
-					Description<div></div><textarea name="description"></textarea>
-					<br><br>
-					<input type="file" name="image">
-					</br><br>
-					<input type="submit" name="envoi">
-					
-					
 
 
-				</form>
-			</div>
-		</div>
-	</section>
-	<script src="../js/index.js?version=1.0.4"></script>
- </body>
+<section>
+    <h1><?= htmlspecialchars($title) ?></h1>
+
+    <?php if (isset($successMessage)): ?>
+        <p style="color: green;"><?= htmlspecialchars($successMessage) ?></p>
+    <?php endif; ?>
+
+    <?php if (isset($error)): ?>
+        <p style="color: red;"><?= htmlspecialchars($error) ?></p>
+    <?php endif; ?>
+
+    <form method="POST" action="" enctype="multipart/form-data">
+        <label for="titre">Titre :</label>
+        <input type="text" id="titre" name="titre" required>
+
+        <label for="description">Description :</label>
+        <textarea id="description" name="description" required></textarea>
+
+        <!-- Champs supplémentaires (dates simplifiées) -->
+        <?php foreach ($extraFields as $field): ?>
+            <label for="<?= $field ?>"><?= ucfirst(str_replace('_', ' ', $field)) ?> :</label>
+            <input type="date" id="<?= $field ?>" name="<?= $field ?>">
+        <?php endforeach; ?>
+
+        <label for="image">Image :</label>
+        <input type="file" id="image" name="image" accept="image/*">
+
+        <button type="submit">Publier</button>
+    </form>
+</section>
+</body>
 </html>
