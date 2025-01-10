@@ -1,11 +1,9 @@
-
 <?php require('menu2.php'); ?>
 
 <?php
-
 require('database/db_connect.php'); // Connexion à la base
 
-// Vérification de la session
+// Vérification de la session utilisateur
 if (!isset($_SESSION['id'])) {
     header('Location: connexion.php');
     exit();
@@ -18,17 +16,30 @@ switch ($type) {
     case 'bat':
         $table = 'articlesbat';
         $title = 'Publier un bâtiment';
-        $extraFields = []; // Pas de champs supplémentaires spécifiques
+        $extraFields = [
+            'type_batiment', 'capacite_maximale', 'localisation', 
+            'date_construction', 'dernier_entretien', 'prochain_entretien', 
+            'statut', 'animaux_actuels'
+        ];
         break;
     case 'equip':
         $table = 'articlesequip';
         $title = 'Publier un équipement';
-        $extraFields = ['date_achat', 'date_derniere_rep'];
+        $extraFields = [
+            'modele', 'marque', 'numero_serie', 
+            'dernier_entretien', 'prochain_entretien', 'statut', 
+            'utilisateur_principal', 'localisation'
+        ];
         break;
     default:
         $table = 'articles';
         $title = 'Publier un animal';
-        $extraFields = ['dateNaissance', 'dateTraitement'];
+        $extraFields = [
+            'identification', 'type_animal', 'race', 'sexe', 
+            'vaccinations', 'traitements', 'statut_reproductif', 
+            'date_mise_bas', 'descendants', 'pere_id', 'mere_id', 
+            'date_entree', 'date_sortie', 'motif_sortie'
+        ];
         break;
 }
 
@@ -39,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id_user = $_SESSION['id'];
     $extraValues = [];
 
-    // Gestion des champs supplémentaires (dates)
+    // Récupération des champs supplémentaires
     foreach ($extraFields as $field) {
         $extraValues[$field] = !empty($_POST[$field]) ? $_POST[$field] : null;
     }
@@ -60,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (!isset($error)) {
-        // Préparation des champs pour la requête SQL
+        // Construction de la requête SQL
         $columns = 'titre, description, id_user';
         $placeholders = '?, ?, ?';
         $values = [$titre, $description, $id_user];
@@ -77,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $values[] = $extraValues[$field];
         }
 
-        // Insertion dans la base
+        // Exécution de l'insertion
         $stmt = $bdd->prepare("INSERT INTO $table ($columns) VALUES ($placeholders)");
         $stmt->execute($values);
 
@@ -107,17 +118,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <p style="color: red;"><?= htmlspecialchars($error) ?></p>
     <?php endif; ?>
 
-    <form method="POST" action="" enctype="multipart/form-data">
+    <form method="POST" action="" enctype="multipart/form-data" class="style_form">
         <label for="titre">Titre :</label>
         <input type="text" id="titre" name="titre" required>
 
         <label for="description">Description :</label>
         <textarea id="description" name="description" required></textarea>
 
-        <!-- Champs supplémentaires (dates simplifiées) -->
+        <!-- Champs supplémentaires -->
         <?php foreach ($extraFields as $field): ?>
             <label for="<?= $field ?>"><?= ucfirst(str_replace('_', ' ', $field)) ?> :</label>
-            <input type="date" id="<?= $field ?>" name="<?= $field ?>">
+            <?php if (strpos($field, 'date') !== false): ?>
+                <input type="date" id="<?= $field ?>" name="<?= $field ?>">
+            <?php elseif ($field === 'sexe'): ?>
+                <select id="<?= $field ?>" name="<?= $field ?>">
+                    <option value="male">Mâle</option>
+                    <option value="femelle">Femelle</option>
+                </select>
+            <?php elseif ($field === 'statut' || $field === 'statut_reproductif'): ?>
+                <select id="<?= $field ?>" name="<?= $field ?>">
+                    <option value="en service">En service</option>
+                    <option value="hors service">Hors service</option>
+                    <option value="en réparation">En réparation</option>
+                </select>
+            <?php else: ?>
+                <input type="text" id="<?= $field ?>" name="<?= $field ?>">
+            <?php endif; ?>
         <?php endforeach; ?>
 
         <label for="image">Image :</label>
