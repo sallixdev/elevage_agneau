@@ -61,7 +61,7 @@ if ($id > 0) {
 // Mise à jour de l'article
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $titre = htmlspecialchars($_POST['titre']);
-    $description = nl2br(htmlspecialchars($_POST['description']));
+    $description = htmlspecialchars($_POST['description']); // Pas de nl2br ici
     $extraValues = [];
 
     // Gestion des champs supplémentaires
@@ -104,6 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $successMessage = "Article mis à jour avec succès.";
     }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -132,7 +133,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <input type="text" id="titre" name="titre" value="<?= htmlspecialchars($article['titre']) ?>" required>
 
         <label for="description">Description :</label>
-        <textarea id="description" name="description" required><?= htmlspecialchars($article['description']) ?></textarea>
+        <textarea id="description" name="description" required><?= htmlspecialchars(str_replace('<br>', "\n", $article['description'])) ?></textarea>
+
+
 
         <!-- Champs supplémentaires -->
         <?php foreach ($extraFields as $field): ?>
